@@ -1,7 +1,23 @@
 \documentclass[10pt, letterpaper, twocolumn]{article}
 
-\usepackage{truthtensor_whitepaper}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{balance}
 \usepackage[style=ieee]{biblatex}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+    pdftitle={Your Paper Title},
+    pdfauthor={Your Name}
+}
+
+\urlstyle{same}
 
 \title{Your Paper Title}
 
@@ -31,7 +47,7 @@ Your abstract goes here. This is a template for LaTeX compilation with bibliogra
 
 \section{Introduction}
 
-Your introduction text here. You can cite references like this \cite{chollet2019measure}.
+Your introduction text here. You can cite references like this \cite{example2024}.
 
 \section{Background}
 
@@ -43,9 +59,9 @@ Describe your methodology here.
 
 \section{Results}
 
-Present your results here. You can include figures from the plots directory:
+Present your results here. You can include figures:
 
-% Example: \includegraphics[width=\columnwidth]{plots/plot1_pnl_over_time.png}
+% Example: \includegraphics[width=\columnwidth]{figures/example.png}
 
 \section{Conclusion}
 
