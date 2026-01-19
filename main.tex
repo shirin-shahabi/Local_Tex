@@ -1,0 +1,61 @@
+\documentclass[10pt, letterpaper, twocolumn]{article}
+
+\usepackage{truthtensor_whitepaper}
+\usepackage[style=ieee]{biblatex}
+
+\title{Your Paper Title}
+
+\author{\vspace{1em}
+  {\normalsize Author Name}\\
+  {\normalsize [\href{mailto:author@example.com}{author}]}@example.com\\
+  {\normalsize Institution Name} 
+}
+
+\date{\today}
+
+
+\begin{document}
+
+\twocolumn[
+\begin{@twocolumnfalse}
+\maketitle
+\begin{abstract}
+\noindent
+Your abstract goes here. This is a template for LaTeX compilation with bibliography support.
+\end{abstract}
+\tableofcontents
+\vspace{1em}
+
+\end{@twocolumnfalse}
+]
+
+\section{Introduction}
+
+Your introduction text here. You can cite references like this \cite{chollet2019measure}.
+
+\section{Background}
+
+Background information goes here.
+
+\section{Methodology}
+
+Describe your methodology here.
+
+\section{Results}
+
+Present your results here. You can include figures from the plots directory:
+
+% Example: \includegraphics[width=\columnwidth]{plots/plot1_pnl_over_time.png}
+
+\section{Conclusion}
+
+Conclude your paper here.
+
+\section{Acknowledgments}
+
+Acknowledgments go here.
+
+\balance
+\printbibliography[title=References,heading=bibintoc]
+
+\end{document}

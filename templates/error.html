@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - LaTeX Compiler</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f5f5f5;
+        }
+        .error-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 600px;
+        }
+        h1 {
+            color: #e74c3c;
+            margin-bottom: 1rem;
+        }
+        .error-message {
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .install-instructions {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+        }
+        .install-instructions h3 {
+            margin-bottom: 0.5rem;
+        }
+        .install-instructions code {
+            background: #e9ecef;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1>LaTeX Not Found</h1>
+        <div class="error-message">
+            {{ error }}
+        </div>
+        <div class="install-instructions">
+            <h3>Installation Instructions:</h3>
+            <p><strong>macOS:</strong></p>
+            <code>brew install --cask mactex</code>
+            <p style="margin-top: 1rem;"><strong>Linux (Ubuntu/Debian):</strong></p>
+            <code>sudo apt-get install texlive-full</code>
+            <p style="margin-top: 1rem;"><strong>Windows:</strong></p>
+            <p>Download and install <a href="https://miktex.org/download" target="_blank">MiKTeX</a></p>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

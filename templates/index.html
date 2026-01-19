@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaTeX Compiler</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+        }
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+        button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        .container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        .editor-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-right: 1px solid #ddd;
+        }
+        .editor-header {
+            padding: 0.5rem 1rem;
+            background: #ecf0f1;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .editor {
+            flex: 1;
+            padding: 1rem;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            border: none;
+            resize: none;
+            outline: none;
+        }
+        .preview-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+        .preview-header {
+            padding: 0.5rem 1rem;
+            background: #ecf0f1;
+            border-bottom: 1px solid #ddd;
+        }
+        .preview-content {
+            flex: 1;
+            overflow: auto;
+            padding: 1rem;
+        }
+        .pdf-viewer {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .status-bar {
+            background: #34495e;
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+        select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .file-selector {
+            margin-right: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>LaTeX Compiler</h1>
+        <div class="controls">
+            <select id="fileSelect" class="file-selector">
+                <option value="">Select file...</option>
+            </select>
+            <button class="btn-secondary" onclick="loadFile()">Load</button>
+            <button class="btn-secondary" onclick="saveFile()">Save</button>
+            <select id="engineSelect">
+                <option value="pdflatex">PDFLaTeX</option>
+                <option value="xelatex">XeLaTeX</option>
+                <option value="lualatex">LuaLaTeX</option>
+            </select>
+            <button class="btn-primary" onclick="compile()">Compile</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="editor-pane">
+            <div class="editor-header">
+                <span>LaTeX Source</span>
+                <input type="text" id="filename" placeholder="document.tex" style="padding: 0.25rem; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <textarea id="editor" class="editor" placeholder="Enter your LaTeX code here..."></textarea>
+        </div>
+        
+        <div class="preview-pane">
+            <div class="preview-header">
+                <span>PDF Preview</span>
+            </div>
+            <div class="preview-content" id="preview">
+                <p style="color: #7f8c8d; text-align: center; margin-top: 2rem;">
+                    Compile your LaTeX document to see the PDF preview here.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="status-bar" id="status">
+        Ready
+    </div>
+    
+    <script>
+        let currentFilename = 'main.tex';
+        
+        // Load file list on startup
+        fetch('/api/files')
+            .then(r => r.json())
+            .then(data => {
+                const select = document.getElementById('fileSelect');
+                data.files.forEach(file => {
+                    const option = document.createElement('option');
+                    option.value = file;
+                    option.textContent = file;
+                    select.appendChild(option);
+                });
+            });
+        
+        function updateStatus(message, isError = false) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.style.background = isError ? '#e74c3c' : '#34495e';
+        }
+        
+        function loadFile() {
+            const filename = document.getElementById('fileSelect').value;
+            if (!filename) {
+                updateStatus('Please select a file', true);
+                return;
+            }
+            
+            fetch(`/api/file/${filename}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error) {
+                        updateStatus(data.error, true);
+                    } else {
+                        document.getElementById('editor').value = data.content;
+                        document.getElementById('filename').value = filename;
+                        currentFilename = filename;
+                        updateStatus(`Loaded: ${filename}`);
+                    }
+                })
+                .catch(err => {
+                    updateStatus('Error loading file', true);
+                });
+        }
+        
+        function saveFile() {
+            const filename = document.getElementById('filename').value || currentFilename;
+            const content = document.getElementById('editor').value;
+            
+            fetch('/api/file', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({filename, content})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    updateStatus(data.error, true);
+                } else {
+                    updateStatus(`Saved: ${data.filename}`);
+                    currentFilename = data.filename;
+                    // Reload file list
+                    location.reload();
+                }
+            })
+            .catch(err => {
+                updateStatus('Error saving file', true);
+            });
+        }
+        
+        function compile() {
+            const filename = document.getElementById('filename').value || currentFilename;
+            const content = document.getElementById('editor').value;
+            const engine = document.getElementById('engineSelect').value;
+            
+            // Save first
+            fetch('/api/file', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({filename, content})
+            })
+            .then(() => {
+                updateStatus('Compiling...');
+                return fetch('/api/compile', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({filename, engine})
+                });
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    updateStatus(`Error: ${data.error}`, true);
+                } else {
+                    updateStatus('Compilation successful!');
+                    const pdfUrl = `/api/pdf/${data.pdf}`;
+                    document.getElementById('preview').innerHTML = 
+                        `<iframe src="${pdfUrl}" class="pdf-viewer"></iframe>`;
+                }
+            })
+            .catch(err => {
+                updateStatus('Compilation failed', true);
+            });
+        }
+        
+        // Auto-save on Ctrl+S
+        document.getElementById('editor').addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveFile();
+            }
+        });
+    </script>
+</body>
+</html>
